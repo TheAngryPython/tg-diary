@@ -8,8 +8,9 @@ import models
 import json
 import requests
 import time
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
 import logging
+import datetime
 from peewee import *
 
 db = SqliteDatabase('langs.sqlite3')
@@ -41,7 +42,7 @@ def encrypt(key, text):
     salt = ''.join(random.choices(string.ascii_letters + string.digits, k = 12))
     key = PBKDF2(key, salt).read(32)
     aes = pyaes.AESModeOfOperationCTR(key)
-    ciphertext = aes.encrypt(text)
+    ciphertext = aes.encrypt(text.encode('utf-8'))
     return (salt, base64.b64encode(ciphertext).decode())
 
 def decrypt(key, salt, text):
@@ -49,7 +50,7 @@ def decrypt(key, salt, text):
     text = base64.b64decode(text)
     aes = pyaes.AESModeOfOperationCTR(key)
     decrypted = aes.decrypt(text)
-    return decrypted.decode()
+    return decrypted.decode('utf-8')
 
 def gt(name, lang='en'):
     return json.loads(Lang.get(name=name).langs)[lang]
@@ -85,12 +86,12 @@ async def new_msg(event):
     if user.tmp:
         tmp = json.loads(user.tmp)
 
-    if text.lower() == 'stop':
+    if text.lower() == 'stop' or text == '/stop':
         user.tmp = None
         user.action = None
         await client.send_message(chat_id, 'Stopped!')
     elif user.action == 'add_start':
-        user.tmp = json.dumps({'name':text})
+        user.tmp = json.dumps({'name':text + str(datetime.datetime.now())})
         user.action = 'add_data'
         await client.send_message(chat_id, gt('add_data', lang))
     elif user.action == 'add_data':
@@ -110,6 +111,13 @@ async def new_msg(event):
     elif text == '/add':
         user.action = 'add_start'
         await client.send_message(chat_id, gt('add_start', lang))
+    elif text == '/all':
+        if models.Data.filter(user=user).count() == 0:
+            await client.send_message(chat_id, gt('all_none', lang))
+        else:
+            user.action = 'all_start'
+            markup = client.build_reply_markup(Button.text('hi'))
+            await client.send_message(chat_id, gt('all_start', lang), buttons=markup)
 
     user.save()
 

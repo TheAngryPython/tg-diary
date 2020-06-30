@@ -2,3 +2,4 @@ db*
 *.session
 log.log
 cfg.txt
+*pycache*
