@@ -1,0 +1,4 @@
+db*
+*.session
+log.log
+cfg.txt
