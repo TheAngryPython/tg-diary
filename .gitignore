@@ -3,3 +3,5 @@ db*
 log.log
 cfg.txt
 *pycache*
+*--get--data--*
+*session*
