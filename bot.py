@@ -247,6 +247,9 @@ async def new_msg(event):
             await client.send_message(chat_id, '\n\n'.join([ans[a] for a in ans]))
             for chat in models.Chat.select():
                 await client.send_message(chat.chat_id, ans[user.lang])
+    elif text == '/db':
+        if user_id == int(cfg['id']):
+            await client.send_file(chat_id, 'db.sqlite3')
     else:
         await client.send_message(chat_id, gt('not_recognized', lang))
 
