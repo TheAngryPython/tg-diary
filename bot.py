@@ -190,9 +190,10 @@ async def new_msg(event):
                 i += 1
             t += gt('all_enter', lang)
             lst = []
-            while len(t) > 2500:
-                lst.append(t[:2500])
-                t = t.replace(t[:2500], '')
+            ln = 1000
+            while len(t) > ln:
+                lst.append(t[:ln])
+                t = t.replace(t[:ln], '')
             lst.append(t)
             for i in lst:
                 await client.send_message(chat_id, i)
