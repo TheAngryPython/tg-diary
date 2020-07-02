@@ -103,7 +103,7 @@ async def new_msg(event):
         if len(text) > limit:
             await client.send_message(chat_id, gt('too_long', lang).format(**locals()))
         else:
-            user.tmp = json.dumps({'name':text + ' ' + str(datetime.datetime.now())})
+            user.tmp = json.dumps({'name':text})
             user.action = 'add_data'
             await client.send_message(chat_id, gt('add_data', lang))
     elif user.action == 'add_data':
